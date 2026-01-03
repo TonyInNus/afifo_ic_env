@@ -19,7 +19,7 @@ com:
 	vlib work 
 	vmap work work
 	vlog -64 -sv +acc \
-	-f file_list \
+	-f hdl.files \
 	-l com_questa.log
 
 sim:
@@ -33,7 +33,7 @@ sim:
 # verdi
 
 verdi  :
-	verdi -sv -f file_list -ssf tb.fsdb &
+	verdi -sv -f hdl.files -ssf wave.fsdb &
 
 #-------------------------------------------------------------------------------------------------------
 clean  :

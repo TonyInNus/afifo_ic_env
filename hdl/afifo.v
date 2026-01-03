@@ -31,8 +31,9 @@ module AFIFO #(
     input  wire                    wr_en,
     input  wire                    rd_en,
     input  wire [DATA_WIDTH-1 : 0] wdata,
-    output wire [DATA_WIDTH-1 : 0] rdata
+    output reg  [DATA_WIDTH-1 : 0] rdata
 );
+    localparam AFIFO_MORE = $clog2(AFIFO_DEEPTH);
     //------------------------------------------------------------------------------------------------
     //---------------------------------------Registers------------------------------------------------
     reg [$clog2(AFIFO_DEEPTH) : 0] wr_ptr, rd_ptr;
@@ -75,18 +76,23 @@ module AFIFO #(
             wr_ptr_g <= wr_ptr ^ wr_ptr >> 1;
         end
     end
-    reg [$clog2(AFIFO_DEEPTH):0] rd_ptr_g;
+    wire [$clog2(AFIFO_DEEPTH):0] wr_ptr_nxt = wr_ptr + 'd1;
+    wire [$clog2(AFIFO_DEEPTH):0] wr_ptr_nxt_g = wr_ptr_nxt ^ wr_ptr_nxt >> 1;
+
+    reg  [$clog2(AFIFO_DEEPTH):0] rd_ptr_g;
     always @(posedge clk_rd or negedge rst_rd_n) begin
         if (~rst_rd_n) begin
             rd_ptr_g <= 'd0;
         end else begin
-            rd_ptr_g <= rd_ptr ^ rdptr >> 1;
+            rd_ptr_g <= rd_ptr ^ rd_ptr >> 1;
         end
     end
+    wire [$clog2(AFIFO_DEEPTH):0] rd_ptr_nxt = rd_ptr + 'd1;
+    wire [$clog2(AFIFO_DEEPTH):0] rd_ptr_nxt_g = rd_ptr_nxt ^ rd_ptr_nxt >> 1;
 
     // wr_ptr_sync
-    reg [$clog2(AFIFO_DEEPTH):0] wr_ptr_1d;
-    reg [$clog2(AFIFO_DEEPTH):0] wr_ptr_2d;
+    reg  [$clog2(AFIFO_DEEPTH):0] wr_ptr_1d;
+    reg  [$clog2(AFIFO_DEEPTH):0] wr_ptr_2d;
     always @(posedge clk_wr or negedge rst_wr_n) begin
         if (~rst_wr_n) begin
             wr_ptr_1d <= 'd0;
@@ -113,15 +119,19 @@ module AFIFO #(
         if (~rst_wr_n) begin
             wr_full <= 'd0;
         end else begin
-            wr_full <= (wr_ptr_g[AFIFO_DEEPTH]^rd_ptr_g[AFIFO_DEEPTH]) && (wr_ptr_g[AFIFO_DEEPTH-1:0] == rd_ptr_g[AFIFO_DEEPTH-1:0]);
+            // assign wfull_val = (wgray_next=={~wq2_rptr[ADDR_SIZE:ADDR_SIZE-1], wq2_rptr[ADDR_SIZE-2:0]});
+            // nxt wr ptr == rd ptr and high bit ^ =1
+            wr_full <=  (wr_ptr_nxt_g[AFIFO_MORE]^rd_ptr_2d[AFIFO_MORE]) && 
+                        (wr_ptr_nxt_g[AFIFO_MORE-1]^rd_ptr_2d[AFIFO_MORE-1]) &&
+                        (wr_ptr_nxt_g[AFIFO_MORE-2:0] == rd_ptr_2d[AFIFO_MORE-2:0]);
         end
     end
 
-    always @(posedge clk or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(posedge clk_rd or negedge rst_rd_n) begin
+        if (~rst_rd_n) begin
             rd_empty <= 'd0;
         end else begin
-            rd_empty <= wr_ptr_g[AFIFO_DEEPTH:0] == rd_ptr_g[AFIFO_DEEPTH:0];
+            rd_empty <= wr_ptr_2d[AFIFO_MORE:0] == rd_ptr_nxt_g[AFIFO_MORE:0];
         end
     end
     //------------------------------------------------------------------------------------------------

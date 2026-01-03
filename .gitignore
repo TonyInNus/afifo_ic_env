@@ -1,0 +1,86 @@
+########################################
+# VCS / Verdi
+########################################
+
+# VCS compile & run
+simv
+simv.daidir/
+csrc/
+ucli.key
+vc_hdrs.h
+vcs.key
+vcs.log
+vcs.log.*
+vcs_compile.log
+vcs_elab.log
+
+# Incremental compile
+simv_dir/
+*.vpd
+*.vcd
+*.fsdb
+*.fsdb.*
+
+# Verdi
+verdiLog/
+verdi_config/
+novas.conf
+novas.rc
+novas.fsdb
+*.rc
+*.log
+*.log.*
+
+########################################
+# Coverage / Debug
+########################################
+urgReport/
+urgReport*
+coverage/
+cov_work/
+*.urg
+
+########################################
+# Temporary / Generated
+########################################
+DVEfiles/
+inter.vpd
+profile.*
+core
+*.bak
+*.swp
+*.swo
+*.tmp
+
+########################################
+# Build / Script outputs
+########################################
+*.rpt
+*.out
+*.lst
+*.dump
+
+########################################
+# OS / Editor
+########################################
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+########################################
+# Python
+########################################
+__pycache__/
+*.pyc
+*.pyo
+
+########################################
+# FPGA / Synthesis (可选)
+########################################
+*.jou
+*.str
+*.pb
+*.dcp
+*.xpr
+*.xdc

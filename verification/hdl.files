@@ -1,2 +1,2 @@
-./../module/afifo.v
+./../hdl/afifo.v
 ./../tb/tb.sv
