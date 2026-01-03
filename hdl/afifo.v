@@ -108,6 +108,22 @@ module AFIFO #(
             rd_ptr_2d <= rd_ptr_1d;
         end
     end
+
+    always @(posedge clk_wr or negedge rst_wr_n) begin
+        if (~rst_wr_n) begin
+            wr_full <= 'd0;
+        end else begin
+            wr_full <= (wr_ptr_g[AFIFO_DEEPTH]^rd_ptr_g[AFIFO_DEEPTH]) && (wr_ptr_g[AFIFO_DEEPTH-1:0] == rd_ptr_g[AFIFO_DEEPTH-1:0]);
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (~rst_n) begin
+            rd_empty <= 'd0;
+        end else begin
+            rd_empty <= wr_ptr_g[AFIFO_DEEPTH:0] == rd_ptr_g[AFIFO_DEEPTH:0];
+        end
+    end
     //------------------------------------------------------------------------------------------------
     //-------------------------------------------SVA--------------------------------------------------
 `ifdef SVA
